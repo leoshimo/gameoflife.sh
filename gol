@@ -1,18 +1,46 @@
-#!/usr/bin/env bash
-# gol - game of life in BASH
+#!/usr/bin/env zsh
+# gol - game of life in Bash -> Zsh
 
-set -euo pipefail
+set -eo pipefail
 
-width="${1:-60}"
-height="${2:-60}"
+width="${1:-20}"
+height="${2:-20}"
+
+declare -A board
+board[0,0]='*'
 
 print_grid() {
-    for y in `seq 0 $(($height-1))`; do
-        for x in `seq 0 $(($width-1))`; do
-            echo -n "⬜"
+    for y in {0..$(($height-1))}; do
+        for x in {0..$(($width-1))}; do
+            if [ -z "${board[$x,$y]}" ]; then
+                echo -n "⬜"
+            else
+                echo -n "⬛"
+            fi
         done
         echo
     done
 }
 
-print_grid
+
+update_grid() {
+    for y in {0..$(($height-1))}; do
+        for x in {0..$(($width-1))}; do
+            if [ -z "${board[$x,$y]}" ]; then
+                board[$((x)),$((y))]="1"
+            else
+                board[$((x)),$((y))]=""
+            fi
+        done
+    done
+}
+
+n=0
+while true; do
+    clear
+    echo "Gen: $n"
+    print_grid
+    update_grid
+    sleep 1
+    n=$((n+1))
+done
