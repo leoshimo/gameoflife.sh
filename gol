@@ -7,7 +7,9 @@ width="${1:-20}"
 height="${2:-20}"
 
 declare -A board
-board[0,0]='*'
+board[2,1]='1'
+board[2,2]='1'
+board[2,3]='1'
 
 print_grid() {
     for y in {0..$(($height-1))}; do
@@ -22,15 +24,58 @@ print_grid() {
     done
 }
 
+num_neighbors() {
+    x="$1"
+    y="$2"
 
+    res=0
+
+    # top row
+    if [ -n "${board[$((x-1)),$((y-1))]}" ]; then
+        res=$((res + 1))
+    fi
+    if [ -n "${board[$((x)),$((y-1))]}" ]; then
+        res=$((res + 1))
+    fi
+    if [ -n "${board[$((x+1)),$((y-1))]}" ]; then
+        res=$((res + 1))
+    fi
+    # middle row
+    if [ -n "${board[$((x-1)),$((y))]}" ]; then
+        res=$((res + 1))
+    fi
+    if [ -n "${board[$((x+1)),$((y))]}" ]; then
+        res=$((res + 1))
+    fi
+    # last row
+    if [ -n "${board[$((x-1)),$((y+1))]}" ]; then
+        res=$((res + 1))
+    fi
+    if [ -n "${board[$((x)),$((y+1))]}" ]; then
+        res=$((res + 1))
+    fi
+    if [ -n "${board[$((x+1)),$((y+1))]}" ]; then
+        res=$((res + 1))
+    fi
+
+    echo -n "$res"
+}
+
+# 1. Any live cell with two or three live neighbours survives.
+# 2. Any dead cell with three live neighbours becomes a live cell.
+# 3. All other live cells die in the next generation. Similarly, all other dead cells stay dead.
 update_grid() {
     for y in {0..$(($height-1))}; do
         for x in {0..$(($width-1))}; do
-            if [ -z "${board[$x,$y]}" ]; then
-                board[$((x)),$((y))]="1"
-            else
-                board[$((x)),$((y))]=""
-            fi
+            num=$(num_neighbors "$x" "$y")
+            case "$num" in
+                2|3)
+                    board[$((x)),$((y))]="1"
+                    ;;
+                *)
+                    board[$((x)),$((y))]=""
+                    ;;
+            esac
         done
     done
 }
@@ -41,6 +86,6 @@ while true; do
     echo "Gen: $n"
     print_grid
     update_grid
-    sleep 1
+    sleep 0.5
     n=$((n+1))
 done
