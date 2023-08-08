@@ -1,3 +1,18 @@
 #!/usr/bin/env bash
 # gol - game of life in BASH
 
+set -euo pipefail
+
+width="${1:-60}"
+height="${2:-60}"
+
+print_grid() {
+    for y in `seq 0 $(($height-1))`; do
+        for x in `seq 0 $(($width-1))`; do
+            echo -n "⬜"
+        done
+        echo
+    done
+}
+
+print_grid
